@@ -1,14 +1,14 @@
-package com.async.fork.api;
+package com.async.fork.continued.api;
 
 import java.lang.reflect.Constructor;
 import java.util.concurrent.Callable;
 
 public class BUILDER {
-    static Constructor<com.async.fork.api.ITaskPool> ctor =null;
-    static com.async.fork.api.ITaskPool theInstance= null;
+    static Constructor<ITaskPool> ctor =null;
+    static ITaskPool theInstance= null;
     static{
         try {
-            Class<com.async.fork.api.ITaskPool> clazz = (Class<com.async.fork.api.ITaskPool>) Class.forName("com.async.fork.impl.TaskPool");
+            Class<ITaskPool> clazz = (Class<ITaskPool>) Class.forName("com.async.fork.impl.TaskPool");
             ctor = clazz.getDeclaredConstructor(new Class[]{});
             ctor.setAccessible(true);
         }
@@ -19,14 +19,14 @@ public class BUILDER {
         }
     }
 
-    static Callable<com.async.fork.api.ITaskPool> INSTANCE()
+    static Callable<ITaskPool> INSTANCE()
     {
 
-        return new Callable<com.async.fork.api.ITaskPool>()
+        return new Callable<ITaskPool>()
         {
 
             @Override
-            public com.async.fork.api.ITaskPool call() throws Exception {
+            public ITaskPool call() throws Exception {
                 if(theInstance==null)
                 {
                     synchronized (BUILDER.class)

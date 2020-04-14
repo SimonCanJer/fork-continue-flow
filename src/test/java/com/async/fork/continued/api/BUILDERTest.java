@@ -1,4 +1,4 @@
-package com.async.fork.api;
+package com.async.fork.continued.api;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -6,11 +6,11 @@ import org.junit.Test;
 public class BUILDERTest {
     @Test
     public void INSTANCE() {
-        com.async.fork.api.ITaskPool pool = null;
+        ITaskPool pool = null;
         Throwable error= null;
         try
         {
-            pool= com.async.fork.api.BUILDER.INSTANCE().call();
+            pool= BUILDER.INSTANCE().call();
         }
         catch(Throwable t)
         {

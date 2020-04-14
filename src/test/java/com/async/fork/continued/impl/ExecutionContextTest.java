@@ -1,9 +1,8 @@
 package com.async.fork.continued.impl;
 
-import com.async.fork.api.TaskNode;
+import com.async.fork.continued.api.TaskNode;
 import org.junit.Assert;
 import org.junit.Test;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -67,7 +66,7 @@ public class ExecutionContextTest {
             integerTaskRes = res;
             reminder = (String) serializable;
 
-        }, (throwable, id) -> mapRemErrors.put(id, throwable));
+        }, (throwable, id) -> mapRemErrors.put(id, throwable),"XXXXXXX");
         try {
             Thread.sleep(400);
         } catch (InterruptedException e) {
@@ -83,10 +82,14 @@ public class ExecutionContextTest {
         int[] refResult = new int[]{0};
         HierarhicTask sent;
         mapRemErrors.clear();
-        context.childTask(new HierarhicArgument(), sent = new HierarhicTask(), 100, (res, serializable) -> refResult[0] = res, (throwable, id) -> mapRemErrors.put(id, throwable));
+        Object sync = new Object();
+        context.childTask(new HierarhicArgument(), sent = new HierarhicTask(sync), 100, (res, serializable) -> refResult[0] = res, (throwable, id) -> mapRemErrors.put(id, throwable),"CCCCCCC");
 
         try {
-            Thread.sleep(300);
+            synchronized (sync)
+            {
+                sync.wait(400);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -101,6 +104,7 @@ public class ExecutionContextTest {
     static class HierarhicArgument {
         int level = 1;
         int id = 0;
+
     }
 
     static ConcurrentHashMap<Integer, Integer> returnedKeys = new ConcurrentHashMap<>();
@@ -108,7 +112,15 @@ public class ExecutionContextTest {
 
     static class HierarhicTask extends TaskNode<HierarhicArgument, Integer> {
         int returned = 0;
+        Object sync=null;
+        HierarhicTask()
+        {
 
+        }
+        HierarhicTask(Object sync)
+        {
+            this.sync = sync;
+        }
 
         @Override
         public void execute(HierarhicArgument in) {
@@ -130,6 +142,14 @@ public class ExecutionContextTest {
             returnedKeys.put((Integer) res, (Integer) s);
             if (++returned == 3) {
                 result(returned);
+                if(sync!=null)
+                {
+                    synchronized (sync)
+                    {
+                        sync.notify();
+                    }
+                }
+
             }
 
         }
@@ -145,7 +165,7 @@ public class ExecutionContextTest {
 
         @Override
         public void execute(Integer in) {
-            throw new NotImplementedException();
+            throw new RuntimeException();
         }
 
         @Override
@@ -167,7 +187,7 @@ public class ExecutionContextTest {
             label[0] = (String) marker;
             thrown[0] = throwable;
 
-        });
+        },"QQQQQQQQQQQQQQQQ");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -176,7 +196,7 @@ public class ExecutionContextTest {
         assertTrue(completeNotCalled[0]);
         assertEquals(label[0], "throw");
         assertNotNull(thrown[0]);
-        assertTrue(thrown[0] instanceof NotImplementedException);
+        assertTrue(thrown[0] instanceof RuntimeException);
 
     }
 
@@ -292,7 +312,7 @@ public class ExecutionContextTest {
 
 
             }
-        }, (throwable, serializable) -> error[0] = throwable);
+        }, (throwable, serializable) -> error[0] = throwable,"ll");
         try {
             synchronized (o) {
                 o.wait(2000);

@@ -1,15 +1,18 @@
 package com.async.fork.continued.impl;
 
-import com.async.fork.api.IExecutionContext;
-import com.async.fork.api.TaskNode;
+
+import com.async.fork.continued.api.IExecutionContext;
+import com.async.fork.continued.api.TaskNode;
 
 import java.lang.reflect.Field;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class Insert {
     static private Field context;
     static private Field callback;
     static private Field errorHandler;
+    static private Field systemID;
+
     static {
         try {
             context = TaskNode.class.getDeclaredField("context");
@@ -33,9 +36,16 @@ public class Insert {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-
+        try {
+            systemID = TaskNode.class.getDeclaredField("systemID");
+            systemID.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
 
     }
+
     static void setContext(TaskNode task, IExecutionContext ctx)
     {
         try {
@@ -45,7 +55,7 @@ public class Insert {
             throw new RuntimeException(e);
         }
     }
-    static void setCallback(TaskNode task, Consumer c)
+    static void setCallback(TaskNode task, BiConsumer c)
     {
         try {
             callback.set(task,c);
@@ -54,7 +64,7 @@ public class Insert {
             throw new RuntimeException(e);
         }
     }
-    static void setFailureHandler(TaskNode task, Consumer c)
+    static void setFailureHandler(TaskNode task, BiConsumer c)
     {
         try {
             errorHandler.set(task,c);
@@ -63,4 +73,15 @@ public class Insert {
             throw new RuntimeException(e);
         }
     }
+
+    static void setSystemID(TaskNode task,String id)
+    {
+        try {
+            systemID.set(task,id);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
 }

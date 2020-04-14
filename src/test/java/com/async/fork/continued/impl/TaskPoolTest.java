@@ -1,6 +1,6 @@
 package com.async.fork.continued.impl;
 
-import com.async.fork.api.TaskNode;
+import com.async.fork.continued.api.TaskNode;
 import org.junit.Assert;
 import org.junit.Test;
 
